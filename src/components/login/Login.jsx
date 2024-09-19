@@ -61,12 +61,15 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    
+    
     const formData = new FormData(e.target);
     const { email, password } = Object.fromEntries(formData);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      console.log(user);
+      
     } catch (error) {
       console.log(error);
 
