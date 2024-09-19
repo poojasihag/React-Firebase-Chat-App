@@ -14,7 +14,10 @@
     "firebase": "^10.13.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-media-recorder": "^1.7.1",
+    "react-photo-view": "^1.2.6",
     "react-toastify": "^10.0.5",
+    "realtime-chat-app": "file:",
     "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {

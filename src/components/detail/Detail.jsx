@@ -5,7 +5,7 @@ import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
 const Detail = () => {
-  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, changeBlock } =
+  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, changeBlocked } =
     useChatStore();
   const { currentUser } = useUserStore();
 
@@ -17,7 +17,9 @@ const Detail = () => {
       await updateDoc(userDocRef, {
         blocked: isReceiverBlocked ? arrayRemove(user.id) : arrayUnion(user.id),
       });
-      changeBlock();
+      changeBlocked();
+      console.log('changeBlock',isReceiverBlocked,isCurrentUserBlocked);
+      
     } catch (error) {
       console.log(error);
     }
@@ -78,13 +80,12 @@ const Detail = () => {
             <img src="./arrowUp.png" />
           </div>
         </div>
-        <button onClick={handleBlock}>
-          {isCurrentUserBlocked
-            ? "You are Blocked"
-            : isReceiverBlocked
-            ? "User Blocked"
-            : "Block User"}
-        </button>
+        {
+          <button onClick={handleBlock}>
+            {isCurrentUserBlocked ? "You are Blocked" : isReceiverBlocked ? "User Blocked" : "Block User"}
+          </button>
+        }
+
         <button className="logout" onClick={() => auth.signOut()}>
           Logout
         </button>
