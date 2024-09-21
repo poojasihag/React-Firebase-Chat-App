@@ -1,3 +1,11 @@
+@media (max-width: 768px) {
+  .addUser{
+    padding: 10px 20px !important;
+    input {
+      padding: 10px !important;
+    }
+  }
+}
 .addUser {
   width: max-content;
   height: max-content;

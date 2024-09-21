@@ -33,10 +33,10 @@ const App = () => {
     <div className="rapper">
       {currentUser ? (
         <>
-          <div className="hidden lg:block">
+          <div className="hidden lg:block ">
             <List />
           </div>
-          <div className="block lg:hidden">{!chatId && <List />}</div>
+          <div className="block lg:hidden w-auto">{!chatId && <List />}</div>
 
           {chatId && <Chat />}
           {/* {chatId && <Detail />} */}

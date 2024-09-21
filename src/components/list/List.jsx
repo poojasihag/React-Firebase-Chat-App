@@ -6,7 +6,7 @@ import Chatlist from "./chatList/ChatList";
 const List = () => {
 
   return (
-    <div className="list">
+    <div className="list w-full">
       <Userinfo />
       <Chatlist />
     </div>
