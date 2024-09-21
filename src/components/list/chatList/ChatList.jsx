@@ -108,11 +108,9 @@ const Chatlist = () => {
     <div className="chatList">
       <div className="search">
         <div className="searchBar">
-          <PhotoProvider>
-            <PhotoView src="./search.png">
+          
           <img src="./search.png" />
-          </PhotoView>
-          </PhotoProvider>
+         
           <input
             type="text"
             placeholder="Search"
@@ -136,6 +134,12 @@ const Chatlist = () => {
             backgroundColor: chat?.isSeen ? "transparent" : "#5183fe",
           }}
         >
+          <PhotoProvider>
+          <PhotoView  src={
+              chat.user.blocked.includes(currentUser.id)
+                ? "./avatar.png"
+                : chat.user?.avatar || "./avatar.png"
+            }>
           <img
             src={
               chat.user.blocked.includes(currentUser.id)
@@ -143,6 +147,8 @@ const Chatlist = () => {
                 : chat.user?.avatar || "./avatar.png"
             }
           />
+           </PhotoView>
+           </PhotoProvider>
           <div className="texts">
             <span>
               {chat.user.blocked.includes(currentUser.id)

@@ -3,6 +3,7 @@ import "./userInfo.css";
 import { IoIosLogOut } from "react-icons/io";
 import { auth } from "../../../lib/firebase";
 import React from "react";
+import { PhotoProvider, PhotoView } from "react-photo-view";
 
 const Userinfo = () => {
   const { currentUser } = useUserStore();
@@ -10,7 +11,11 @@ const Userinfo = () => {
   return (
     <div className="userInfo">
       <div className="user">
-        <img src={currentUser.avatar || "./avatar.png"} />
+        <PhotoProvider>
+          <PhotoView src={currentUser.avatar || "./avatar.png"}>
+            <img src={currentUser.avatar || "./avatar.png"} />
+          </PhotoView>
+        </PhotoProvider>
         <h2>{currentUser.username}</h2>
       </div>
       <div className="icons">

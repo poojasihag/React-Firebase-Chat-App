@@ -4,7 +4,7 @@
     overflow: hidden;
     .bottom{
       padding: 15px 10px !important;
-      gap: 5px !important;
+      gap: 10 px !important;
       .icons{
         gap: 10px !important;
       }
@@ -14,6 +14,7 @@
       }
       input{
         width: 50%;
+        padding: 10px 20px !important;
       }
       .emoji {
         position: relative;

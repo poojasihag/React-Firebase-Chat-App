@@ -276,10 +276,10 @@ const Chat = () => {
               onChange={handleImg}
               disabled={isCurrentUserBlocked || isReceiverBlocked}
             />
-            <img className="camara" src="./camera.png" />
+            {/* <img className="camara" src="./camera.png" />
             <div className="voicer">
               <img className="mic" src="./mic.png" />
-            </div>
+            </div> */}
             {/* <div>
     <ReactMediaRecorder
       audio
@@ -306,7 +306,7 @@ const Chat = () => {
             disabled={isCurrentUserBlocked || isReceiverBlocked}
             onKeyDown={handleKeyDown}
           />
-          <div className="emoji">
+          <div className="emoji hidden lg:block">
             <img src="./emoji.png" onClick={() => setOpen((prev) => !prev)} />
             <div className="picker">
               <EmojiPicker

@@ -7,13 +7,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import { useUserStore } from "./lib/userStore";
 import { useChatStore } from "./lib/chatStore";
+import { LoaderProvider } from "./lib/LoaderProvider";
 
 const App = () => {
+  
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
   const { chatId } = useChatStore();
-  useEffect(() => {
+  useEffect(() => {    
     const unSub = onAuthStateChanged(auth, (user) => {
-      console.log(user);
 
       fetchUserInfo(user?.uid);
     });
@@ -23,11 +24,12 @@ const App = () => {
     };
   }, [fetchUserInfo]);
 
-  console.log(currentUser);
+ 
 
   if (isLoading) return <div className="loading">Loading...</div>;
 
   return (
+    <LoaderProvider>
     <div className="rapper">
       {currentUser ? (
         <>
@@ -44,6 +46,7 @@ const App = () => {
       )}
       <Notification />
     </div>
+    </LoaderProvider>
   );
 };
 

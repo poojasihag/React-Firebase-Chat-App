@@ -8,16 +8,18 @@ import {
 import { auth, db } from "../../lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import upload from "../../lib/upload";
-
+import { useLoader } from "../../lib/LoaderProvider";
+import { useUserStore } from "../../lib/userStore";
 const Login = () => {
   const [avatar, setAvatar] = useState({
     file: null,
     url: "",
   });
-
+  const { showLoader, hideLoader } = useLoader();
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const { fetchUserInfo } = useUserStore();
   const handleAvatar = (e) => {
     if (e.target.files[0]) {
       setAvatar({
@@ -29,14 +31,16 @@ const Login = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    showLoader();
     const formData = new FormData(e.target);
 
     const { username, email, password } = Object.fromEntries(formData);
 
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
-
+      if (!avatar || !avatar.file) {
+        throw new Error("Please select an avatar.");
+      }
       const imgUrl = await upload(avatar.file);
 
       await setDoc(doc(db, "users", res.user.uid), {
@@ -51,30 +55,33 @@ const Login = () => {
         chats: [],
       });
 
+      fetchUserInfo(res.user.uid);
+
       toast.success("Account created! You can login now!");
     } catch (error) {
+      console.log(error);
+      
       toast.error(error.message);
     } finally {
-      setLoading(false);
+      hideLoader();
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    showLoader();
 
     const formData = new FormData(e.target);
     const { email, password } = Object.fromEntries(formData);
 
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
-      console.log(user);
+      fetchUserInfo(user.user.uid);
     } catch (error) {
-      console.log(error);
 
       toast.error(error.message);
     } finally {
-      setLoading(false);
+      hideLoader();
     }
   };
 
@@ -83,6 +90,7 @@ const Login = () => {
   };
 
   const togglePasswordVisibility = () => {
+    
     setShowPassword(!showPassword);
   };
   return (
