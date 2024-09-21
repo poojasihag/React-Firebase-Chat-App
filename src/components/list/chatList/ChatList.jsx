@@ -5,6 +5,7 @@ import { useUserStore } from "../../../lib/userStore";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useChatStore } from "../../../lib/chatStore";
+import { PhotoProvider, PhotoView } from "react-photo-view";
 
 const Chatlist = () => {
   const [chats, setChats] = useState([]);
@@ -107,19 +108,25 @@ const Chatlist = () => {
     <div className="chatList">
       <div className="search">
         <div className="searchBar">
+          <PhotoProvider>
+            <PhotoView src="./search.png">
           <img src="./search.png" />
+          </PhotoView>
+          </PhotoProvider>
           <input
             type="text"
             placeholder="Search"
             onChange={(e) => setInput(e.target.value)}
           />
         </div>
+
         <img
           src={addMode ? "./minus.png" : "./plus.png"}
           className="add"
           onClick={() => setAddMode((prev) => !prev)}
         />
       </div>
+
       {filteredChats.map((chat) => (
         <div
           className="item"

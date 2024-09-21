@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import List from "./components/list/List";
 import Chat from "./components/chat/Chat";
-import Detail from "./components/detail/Detail";
 import Login from "./components/login/Login";
 import Notification from "./components/notification/Notification";
 import { onAuthStateChanged } from "firebase/auth";
@@ -29,12 +28,16 @@ const App = () => {
   if (isLoading) return <div className="loading">Loading...</div>;
 
   return (
-    <div className="container">
+    <div className="rapper">
       {currentUser ? (
         <>
-          <List />
+          <div className="hidden lg:block">
+            <List />
+          </div>
+          <div className="block lg:hidden">{!chatId && <List />}</div>
+
           {chatId && <Chat />}
-          {chatId && <Detail />}
+          {/* {chatId && <Detail />} */}
         </>
       ) : (
         <Login />

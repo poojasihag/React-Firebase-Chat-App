@@ -4,9 +4,16 @@ import { auth, db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
+import { PhotoProvider, PhotoView } from "react-photo-view";
+
 const Detail = () => {
-  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, changeBlocked } =
-    useChatStore();
+  const {
+    chatId,
+    user,
+    isCurrentUserBlocked,
+    isReceiverBlocked,
+    changeBlocked,
+  } = useChatStore();
   const { currentUser } = useUserStore();
 
   const handleBlock = async () => {
@@ -18,8 +25,7 @@ const Detail = () => {
         blocked: isReceiverBlocked ? arrayRemove(user.id) : arrayUnion(user.id),
       });
       changeBlocked();
-      console.log('changeBlock',isReceiverBlocked,isCurrentUserBlocked);
-      
+      console.log("changeBlock", isReceiverBlocked, isCurrentUserBlocked);
     } catch (error) {
       console.log(error);
     }
@@ -28,7 +34,11 @@ const Detail = () => {
   return (
     <div className="detail">
       <div className="user">
-        <img src={user?.avatar || "./avatar.png"} />
+        <PhotoProvider>
+          <PhotoView src={user?.avatar || "./avatar.png"}>
+            <img src={user?.avatar || "./avatar.png"} />
+          </PhotoView>
+        </PhotoProvider>
         <h2>{user?.username}</h2>
         <p>vgfhfdgfjgfhyfhdfsjhfsjh</p>
       </div>
@@ -82,7 +92,11 @@ const Detail = () => {
         </div>
         {
           <button onClick={handleBlock}>
-            {isCurrentUserBlocked ? "You are Blocked" : isReceiverBlocked ? "User Blocked" : "Block User"}
+            {isCurrentUserBlocked
+              ? "You are Blocked"
+              : isReceiverBlocked
+              ? "User Blocked"
+              : "Block User"}
           </button>
         }
 

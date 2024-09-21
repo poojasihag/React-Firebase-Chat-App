@@ -1,6 +1,7 @@
 import { useUserStore } from "../../../lib/userStore";
 import "./userInfo.css";
-
+import { IoIosLogOut } from "react-icons/io";
+import { auth } from "../../../lib/firebase";
 import React from "react";
 
 const Userinfo = () => {
@@ -13,8 +14,13 @@ const Userinfo = () => {
         <h2>{currentUser.username}</h2>
       </div>
       <div className="icons">
-        <img src="./more.png" />
-        <img src="./video.png" />
+        {
+          <IoIosLogOut
+            className="w-6 h-6 "
+            onClick={() => auth.signOut()}
+          ></IoIosLogOut>
+        }
+
         <img src="./edit.png" />
       </div>
     </div>
