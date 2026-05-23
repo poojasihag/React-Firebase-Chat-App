@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import "./detail.css";
 import { auth, db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { PhotoProvider, PhotoView } from "react-photo-view";
+import { IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline, IoDownloadOutline, IoLogOutOutline } from "react-icons/io5";
 
-const Detail = () => {
+const Detail = ({ onClose }) => {
   const {
     chatId,
     user,
@@ -15,6 +16,12 @@ const Detail = () => {
     changeBlocked,
   } = useChatStore();
   const { currentUser } = useUserStore();
+
+  const [expandedSection, setExpandedSection] = useState("photos");
+
+  const toggleSection = (sectionName) => {
+    setExpandedSection(expandedSection === sectionName ? null : sectionName);
+  };
 
   const handleBlock = async () => {
     if (!user) return;
@@ -25,7 +32,6 @@ const Detail = () => {
         blocked: isReceiverBlocked ? arrayRemove(user.id) : arrayUnion(user.id),
       });
       changeBlocked();
-      console.log("changeBlock", isReceiverBlocked, isCurrentUserBlocked);
     } catch (error) {
       console.log(error);
     }
@@ -33,74 +39,97 @@ const Detail = () => {
 
   return (
     <div className="detail">
-      <div className="user">
+      {/* Detail Header */}
+      <div className="detailHeader">
+        <h3>User Info</h3>
+        <IoCloseOutline className="closeIcon" onClick={onClose} />
+      </div>
+
+      {/* User profile details */}
+      <div className="userProfile">
         <PhotoProvider>
           <PhotoView src={user?.avatar || "./avatar.png"}>
-            <img src={user?.avatar || "./avatar.png"} />
+            <img src={user?.avatar || "./avatar.png"} alt={user?.username} className="userAvatar" />
           </PhotoView>
         </PhotoProvider>
         <h2>{user?.username}</h2>
-        <p>vgfhfdgfjgfhyfhdfsjhfsjh</p>
+        <p className="bio">Hello there! I'm using Chattie.</p>
       </div>
-      <div className="info">
-        <div className="option">
-          <div className="title">
-            <span>Chat Settings</span>
-            <img src="./arrowUp.png" />
-          </div>
-        </div>
-        <div className="option">
-          <div className="title">
-            <span>Privacy & helps</span>
-            <img src="./arrowUp.png" />
-          </div>
-        </div>
-        <div className="option">
-          <div className="title">
-            <span>Shared Photos</span>
-            <img src="./arrowDown.png" />
-          </div>
-          <div className="photos">
-            <div className="photoItem">
-              <div className="photoDetail">
-                <img src="https://www.google.com/imgres?q=image%20to%20pdf&imgurl=https%3A%2F%2Fwww.ilovepdf.com%2Fimg%2Filovepdf%2Fsocial%2Fen-US%2Fimagepdf.png&imgrefurl=https%3A%2F%2Fwww.ilovepdf.com%2Fjpg_to_pdf&docid=ZFXNpLCzg1-bHM&tbnid=CC3mkMp08evUIM&vet=12ahUKEwiU3KSGp8qIAxXslFYBHf15FXMQM3oECHoQAA..i&w=1200&h=717&hcb=2&ved=2ahUKEwiU3KSGp8qIAxXslFYBHf15FXMQM3oECHoQAA" />
-                <span>photo_2024_2.png</span>
-              </div>
-              <img src="./download.png" className="icon" />
-            </div>
-            <div className="photoItem">
-              <div className="photoDetail">
-                <img src="https://www.google.com/imgres?q=image%20to%20pdf&imgurl=https%3A%2F%2Fwww.ilovepdf.com%2Fimg%2Filovepdf%2Fsocial%2Fen-US%2Fimagepdf.png&imgrefurl=https%3A%2F%2Fwww.ilovepdf.com%2Fjpg_to_pdf&docid=ZFXNpLCzg1-bHM&tbnid=CC3mkMp08evUIM&vet=12ahUKEwiU3KSGp8qIAxXslFYBHf15FXMQM3oECHoQAA..i&w=1200&h=717&hcb=2&ved=2ahUKEwiU3KSGp8qIAxXslFYBHf15FXMQM3oECHoQAA" />
-                <span>photo_2024_2.png</span>
-              </div>
-              <img src="./download.png" className="icon" />
-            </div>
-            <div className="photoItem">
-              <div className="photoDetail">
-                <img src="https://www.google.com/imgres?q=image%20to%20pdf&imgurl=https%3A%2F%2Fwww.ilovepdf.com%2Fimg%2Filovepdf%2Fsocial%2Fen-US%2Fimagepdf.png&imgrefurl=https%3A%2F%2Fwww.ilovepdf.com%2Fjpg_to_pdf&docid=ZFXNpLCzg1-bHM&tbnid=CC3mkMp08evUIM&vet=12ahUKEwiU3KSGp8qIAxXslFYBHf15FXMQM3oECHoQAA..i&w=1200&h=717&hcb=2&ved=2ahUKEwiU3KSGp8qIAxXslFYBHf15FXMQM3oECHoQAA" />
-                <span>photo_2024_2.png</span>
-              </div>
-              <img src="./download.png" className="icon" />
-            </div>
-          </div>
-        </div>
-        <div className="option">
-          <div className="title">
-            <span>Shared Files</span>
-            <img src="./arrowUp.png" />
-          </div>
-        </div>
-        {
-          <button onClick={handleBlock}>
-            {isCurrentUserBlocked
-              ? "You are Blocked"
-              : isReceiverBlocked
-              ? "User Blocked"
-              : "Block User"}
-          </button>
-        }
 
-        <button className="logout" onClick={() => auth.signOut()}>
+      {/* Options Accordion */}
+      <div className="optionsList">
+        {/* Settings Option */}
+        <div className="optionItem">
+          <div className="optionTitle" onClick={() => toggleSection("settings")}>
+            <span>Chat Settings</span>
+            {expandedSection === "settings" ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+          </div>
+          {expandedSection === "settings" && (
+            <div className="optionContent">
+              <p>Mute notifications</p>
+              <p>Change chat theme</p>
+            </div>
+          )}
+        </div>
+
+        {/* Privacy Option */}
+        <div className="optionItem">
+          <div className="optionTitle" onClick={() => toggleSection("privacy")}>
+            <span>Privacy & Help</span>
+            {expandedSection === "privacy" ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+          </div>
+          {expandedSection === "privacy" && (
+            <div className="optionContent">
+              <p>Report user</p>
+              <p>Clear chat history</p>
+            </div>
+          )}
+        </div>
+
+        {/* Shared Photos Option */}
+        <div className="optionItem">
+          <div className="optionTitle" onClick={() => toggleSection("photos")}>
+            <span>Shared Photos</span>
+            {expandedSection === "photos" ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+          </div>
+          
+          {expandedSection === "photos" && (
+            <div className="photosGrid">
+              <div className="photoRow">
+                <div className="photoDetail">
+                  <img src="https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?w=100&auto=format&fit=crop" alt="shared" />
+                  <span>nature_pic.jpg</span>
+                </div>
+                <IoDownloadOutline className="downloadIcon" />
+              </div>
+
+              <div className="photoRow">
+                <div className="photoDetail">
+                  <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=100&auto=format&fit=crop" alt="shared" />
+                  <span>scenery.png</span>
+                </div>
+                <IoDownloadOutline className="downloadIcon" />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer controls (Block and Logout buttons) */}
+      <div className="footerControls">
+        <button 
+          onClick={handleBlock} 
+          className={`blockBtn ${isReceiverBlocked ? "blocked" : ""}`}
+        >
+          {isCurrentUserBlocked
+            ? "You are Blocked"
+            : isReceiverBlocked
+            ? "Unblock User"
+            : "Block User"}
+        </button>
+
+        <button className="logoutBtn" onClick={() => auth.signOut()}>
+          <IoLogOutOutline className="logoutIcon" />
           Logout
         </button>
       </div>

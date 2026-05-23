@@ -1,4 +1,5 @@
 import { useUserStore } from "../../../lib/userStore";
+import { useChatStore } from "../../../lib/chatStore";
 import "./userInfo.css";
 import { IoIosLogOut } from "react-icons/io";
 import { auth } from "../../../lib/firebase";
@@ -7,6 +8,12 @@ import { PhotoProvider, PhotoView } from "react-photo-view";
 
 const Userinfo = () => {
   const { currentUser } = useUserStore();
+  const { resetChat } = useChatStore();
+
+  const handleLogout = () => {
+    resetChat(); // Clear persisted chat state
+    auth.signOut();
+  };
 
   return (
     <div className="userInfo">
@@ -22,7 +29,7 @@ const Userinfo = () => {
         {
           <IoIosLogOut
             className="w-6 h-6 "
-            onClick={() => auth.signOut()}
+            onClick={handleLogout}
           ></IoIosLogOut>
         }
 

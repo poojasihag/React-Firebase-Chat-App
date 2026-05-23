@@ -1,90 +1,192 @@
-@media (max-width: 768px) {
-  .addUser{
-    padding: 10px 20px !important;
-    input {
-      padding: 10px !important;
-    }
+.addUserBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(45, 37, 61, 0.4);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  animation: fade-in-backdrop 0.25s ease-out;
+}
+
+@keyframes fade-in-backdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.addUserCard {
+  background-color: #FFFFFF;
+  width: 90%;
+  max-width: 440px;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(45, 37, 61, 0.15);
+  border: 1px solid rgba(124, 114, 157, 0.1);
+  animation: slide-in-card 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+@keyframes slide-in-card {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.addUserCard .cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .closeIcon {
+    font-size: 1.6rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .closeIcon:hover {
+    color: var(--accent-pink);
+    transform: scale(1.1);
   }
 }
-.addUser {
-  width: max-content;
-  height: max-content;
-  padding: 30px;
-  background-color: rgb(17, 25, 40, 0.781);
-  border-radius: 10px;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  -o-border-radius: 10px;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
 
-  form {
+.searchForm {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .searchInputWrapper {
+    flex: 1;
     display: flex;
-    gap: 20px;
+    align-items: center;
+    background-color: var(--primary-purple-pastel);
+    border: 1.5px solid transparent;
+    border-radius: 14px;
+    padding: 0 12px;
+    transition: all 0.2s;
 
-    input {
-      padding: 20px;
-      border-radius: 10px;
-      -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-      -ms-border-radius: 10px;
-      -o-border-radius: 10px;
-      border: none;
-      outline: none;
+    .inputSearchIcon {
+      font-size: 1.1rem;
+      color: var(--primary-purple-light);
+      margin-right: 8px;
     }
 
-    button {
-      padding: 20px;
-      border-radius: 10px;
-      -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-      -ms-border-radius: 10px;
-      -o-border-radius: 10px;
-      background-color: #1a73e8;
-      color: white;
+    input {
+      flex: 1;
       border: none;
-      cursor: pointer;
+      outline: none;
+      background: transparent;
+      padding: 12px 0;
+      font-size: 0.92rem;
+      color: var(--text-dark);
     }
   }
 
-  .user {
-    margin-top: 50px;
+  .searchInputWrapper:focus-within {
+    border-color: var(--primary-purple-light);
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(148, 139, 186, 0.12);
+  }
+
+  .searchButton {
+    background-color: var(--primary-purple);
+    color: #FFFFFF;
+    border: none;
+    outline: none;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0 18px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .searchButton:hover {
+    background-color: var(--primary-purple-dark);
+    transform: translateY(-1px);
+  }
+}
+
+.resultArea {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.foundUserRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--primary-purple-pastel);
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(124, 114, 157, 0.05);
+
+  .userDetail {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
 
-    .detail {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        -webkit-border-radius: 50%;
-        -moz-border-radius: 50%;
-        -ms-border-radius: 50%;
-        -o-border-radius: 50%;
-        object-fit: cover;
-      }
+    .userAvatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
-    button {
-      padding: 10px;
-      border-radius: 10px;
-      -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-      -ms-border-radius: 10px;
-      -o-border-radius: 10px;
-      background-color: #1a73e8;
-      color: white;
-      border: none;
-      cursor: pointer;
+    .username {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-dark);
     }
+  }
+
+  .addFriendButton {
+    background: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-pink-hover) 100%);
+    color: #FFFFFF;
+    border: none;
+    outline: none;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(235, 139, 142, 0.2);
+    transition: all 0.2s;
+  }
+
+  .addFriendButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(235, 139, 142, 0.3);
+  }
+}
+
+.noUserFound {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 350;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .addUserCard {
+    padding: 20px;
+    border-radius: 20px;
   }
 }

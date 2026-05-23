@@ -14,11 +14,10 @@ import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
 import { PhotoProvider, PhotoView } from "react-photo-view";
+import { IoSend, IoChevronBack, IoCallOutline, IoVideocamOutline, IoEllipsisHorizontal, IoImageOutline } from "react-icons/io5";
 import { MdBlock } from "react-icons/md";
-import { IoSend } from "react-icons/io5";
-import { IoMdArrowRoundBack } from "react-icons/io";
 
-const Chat = () => {
+const Chat = ({ toggleDetail, showDetail }) => {
   const [chat, setChat] = useState();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
@@ -34,7 +33,6 @@ const Chat = () => {
     isCurrentUserBlocked,
     isReceiverBlocked,
     changeBlocked,
-    
   } = useChatStore();
   const { currentUser } = useUserStore();
 
@@ -42,13 +40,11 @@ const Chat = () => {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat, img]);
-  console.log(chat);
+  }, [chat?.messages, img.url]);
 
   useEffect(() => {
+    setChat(undefined); // Clear old chat messages immediately when chatId changes!
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
-      console.log(res.data());
-
       setChat(res.data());
     });
     return () => {
@@ -65,7 +61,6 @@ const Chat = () => {
         blocked: isReceiverBlocked ? arrayRemove(user.id) : arrayUnion(user.id),
       });
       changeBlocked();
-      console.log("changeBlock", isReceiverBlocked, isCurrentUserBlocked);
     } catch (error) {
       console.log(error);
     }
@@ -92,17 +87,15 @@ const Chat = () => {
 
     try {
       if (img.file) {
-        // Upload the image and get the URL
-        imgUrl = await upload(img.file);
+        imgUrl = await upload(img.file, { maxSize: 600, quality: 0.6 });
       }
 
-      // Update the chat document in Firestore
       await updateDoc(doc(db, "chats", chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
-          text: text || null, // If there's no text, just send an empty string
+          text: text || null,
           createdAt: new Date(),
-          ...(imgUrl && { img: imgUrl }), // Only include the image if there's a URL
+          ...(imgUrl && { img: imgUrl }),
         }),
       });
 
@@ -114,20 +107,19 @@ const Chat = () => {
 
         if (userChatsSnapshot.exists()) {
           const userChatsData = userChatsSnapshot.data();
-          console.log(userChatsData);
-
           const chatIndex = userChatsData.chats.findIndex(
             (c) => c.chatId === chatId
           );
 
-          userChatsData.chats[chatIndex].lastMessage = text;
-          userChatsData.chats[chatIndex].isSeen =
-            id === currentUser.id ? true : false;
-          userChatsData.chats[chatIndex].updatedAt = Date.now();
+          if (chatIndex !== -1) {
+            userChatsData.chats[chatIndex].lastMessage = text || "Sent an image";
+            userChatsData.chats[chatIndex].isSeen = id === currentUser.id;
+            userChatsData.chats[chatIndex].updatedAt = Date.now();
 
-          await updateDoc(userChatsRef, {
-            chats: userChatsData.chats,
-          });
+            await updateDoc(userChatsRef, {
+              chats: userChatsData.chats,
+            });
+          }
         }
       });
     } catch (error) {
@@ -138,7 +130,6 @@ const Chat = () => {
       file: null,
       url: "",
     });
-
     setText("");
   };
 
@@ -149,192 +140,214 @@ const Chat = () => {
   };
 
   const convertTimestampToDate = (timestamp) => {
-    // Convert seconds to milliseconds
-    const milliseconds = timestamp.seconds * 1000;
-    // Create a Date object
+    if (!timestamp) return "";
+    const milliseconds = timestamp.seconds ? timestamp.seconds * 1000 : timestamp;
     const dateObject = new Date(milliseconds);
-
-    // Create a Date object for today
     const today = new Date();
 
-    // Check if the message is from today
     const isToday =
       dateObject.getDate() === today.getDate() &&
       dateObject.getMonth() === today.getMonth() &&
       dateObject.getFullYear() === today.getFullYear();
 
-    // Options to format the time (removes seconds)
     const timeOptions = { hour: "2-digit", minute: "2-digit" };
-
-    // Options to format date and time
     const dateTimeOptions = {
-      year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     };
 
-    // If it's today, show only the time, otherwise show the date and time
     return isToday
       ? dateObject.toLocaleTimeString([], timeOptions)
       : dateObject.toLocaleDateString([], dateTimeOptions);
   };
-  const handleBack = () => {
-    changeChat(null, null); // Reset chatId to go back to the list
-  };
-  return (
-    <>
-      <div className="chat">
-        <div className="top">
-        <button className="block lg:hidden" onClick={handleBack} >
-        <IoMdArrowRoundBack />
 
+  const handleBack = () => {
+    changeChat(null, null);
+  };
+
+  return (
+    <div className="chat">
+      {/* Top Bar (Header) */}
+      <div className="top">
+        <button className="backBtn" onClick={handleBack}>
+          <IoChevronBack />
         </button>
-          <div className="user">
-            <PhotoProvider>
-              <PhotoView src={user?.avatar || "./avatar.png"}>
-                <img src={user?.avatar || "./avatar.png"} />
-              </PhotoView>
-            </PhotoProvider>
-            <div className="texts">
-              <span>{user?.username}</span>
-              <p></p>
-            </div>
-          </div>
-          <div className="icons">
-            <img src="./phone.png" />
-            <img src="./video.png" />
-            {
-              <MdBlock
-                className={`${
-                  isReceiverBlocked ? "text-red-500" : "text-white"
-                } w-6 h-6`}
-                onClick={handleBlock}
-              >
-                {isCurrentUserBlocked
-                  ? "You are Blocked"
-                  : isReceiverBlocked
-                  ? "User Blocked"
-                  : "Block User"}
-              </MdBlock>
-            }
+
+        <div className="user">
+          <PhotoProvider>
+            <PhotoView src={user?.avatar || "./avatar.png"}>
+              <img src={user?.avatar || "./avatar.png"} alt={user?.username} />
+            </PhotoView>
+          </PhotoProvider>
+          <div className="texts">
+            <span>{user?.username}</span>
+            <p className="status">
+              {isCurrentUserBlocked ? "" : isReceiverBlocked ? "Blocked" : "Online"}
+            </p>
           </div>
         </div>
+
+        <div className="icons">
+          <IoCallOutline className="headerIcon" />
+          <IoVideocamOutline className="headerIcon" />
+          
+          <button 
+            className={`blockBtn ${isReceiverBlocked ? "blocked" : ""}`}
+            onClick={handleBlock}
+            title={isReceiverBlocked ? "Unblock User" : "Block User"}
+          >
+            <MdBlock />
+          </button>
+
+          <button 
+            className={`infoBtn ${showDetail ? "active" : ""}`}
+            onClick={toggleDetail}
+            title="Chat Info"
+          >
+            <IoEllipsisHorizontal />
+          </button>
+        </div>
+      </div>
+
+      {/* Main Message Viewport with curved top edge nesting inside container */}
+      <div className="messageViewport">
         <PhotoProvider>
           <div className="center">
-            {chat?.messages?.map((message, index) => (
-              <div
-                className={
-                  message.senderId === currentUser?.id
-                    ? "message own"
-                    : "message"
-                }
-                key={message.id || index}
-              >
-                <div className="texts">
-                  {message.img && (
-                    <>
-                      <PhotoView src={message.img}>
-                        <img src={message.img} />
-                      </PhotoView>
-                    </>
-                  )}
-                  {message.text !== null && <p>{message.text}</p>}
-                  <span>{convertTimestampToDate(message.createdAt)}</span>{" "}
-                </div>
+            {chat === undefined ? (
+              <div className="chatSkeletonList">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className={`chatSkeletonItem ${i % 2 === 0 ? "own" : ""}`}>
+                    {i % 2 !== 0 && <div className="skeletonAvatar"></div>}
+                    <div className="skeletonTexts">
+                      <div className="skeletonBubble"></div>
+                      <div className="skeletonTime"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <>
+                {chat?.messages?.map((message, index) => {
+                  const isOwn = message.senderId === currentUser?.id;
+                  return (
+                    <div
+                      className={`message ${isOwn ? "own" : ""}`}
+                      key={message.id || index}
+                    >
+                      {!isOwn && (
+                        <img 
+                          src={user?.avatar || "./avatar.png"} 
+                          alt="Avatar" 
+                          className="messageAvatar"
+                        />
+                      )}
+                      <div className="texts">
+                        {message.img && (
+                          <PhotoView src={message.img}>
+                            <img src={message.img} alt="Sent image" className="sentImage" />
+                          </PhotoView>
+                        )}
+                        {message.text && <p className="bubble">{message.text}</p>}
+                        <span className="timestamp">
+                          {convertTimestampToDate(message.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
 
-            {img.url && (
-              <div className="message own">
-                <div className="texts">
-                  <img src={img.url} />
-                </div>
-              </div>
+                {img.url && (
+                  <div className="message own">
+                    <div className="texts">
+                      <img src={img.url} alt="Uploading..." className="sentImage uploading" />
+                      <span className="timestamp">Sending...</span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-            <div className="text-center" ref={endRef}>
-              {" "}
-              {isCurrentUserBlocked ||
-                (isReceiverBlocked && (
-                  <span className="p-1 bg-slate-500 border-slate-500  text-white rounded-lg">
-                    You are blocked
-                  </span>
-                ))}{" "}
+
+            <div className="statusAlert" ref={endRef}>
+              {(isCurrentUserBlocked || isReceiverBlocked) && (
+                <span className="alertText">
+                  {isCurrentUserBlocked 
+                    ? "You cannot message this user because they blocked you." 
+                    : "You have blocked this user. Unblock to resume chat."}
+                </span>
+              )}
             </div>
           </div>
         </PhotoProvider>
+
+        {/* Input area at bottom of white viewport */}
         <div className="bottom">
-          <div className="icons">
-            <label htmlFor="file">
-              <img className="camara" src="./img.png" />
+          <div className="inputControls">
+            <label htmlFor="file" className="attachLabel" title="Send Image">
+              <IoImageOutline className="attachIcon" />
             </label>
             <input
               type="file"
               id="file"
               style={{ display: "none" }}
               onChange={handleImg}
-              disabled={isCurrentUserBlocked || isReceiverBlocked}
+              disabled={isCurrentUserBlocked || isReceiverBlocked || chat === undefined}
+              accept="image/*"
             />
-            {/* <img className="camara" src="./camera.png" />
-            <div className="voicer">
-              <img className="mic" src="./mic.png" />
-            </div> */}
-            {/* <div>
-    <ReactMediaRecorder
-      audio
-      render={({ status, startRecording, stopRecording, mediaBlobUrl }) => (
-        <div>
-          <p>{status}</p>
-          <button onClick={startRecording}>Start Recording</button>
-          <button onClick={stopRecording}>Stop Recording</button>
-          <audio src={mediaBlobUrl} controls autoPlay loop />
-        </div>
-      )}
-    />
-  </div> */}
           </div>
+
           <input
             type="text"
             placeholder={
-              isCurrentUserBlocked || isReceiverBlocked
-                ? "You cannot send a message."
+              chat === undefined
+                ? "Loading chat..."
+                : isCurrentUserBlocked || isReceiverBlocked
+                ? "You cannot send messages."
                 : "Type a message..."
             }
             value={text}
             onChange={(e) => setText(e.target.value)}
-            disabled={isCurrentUserBlocked || isReceiverBlocked}
+            disabled={isCurrentUserBlocked || isReceiverBlocked || chat === undefined}
             onKeyDown={handleKeyDown}
+            className="messageInput"
           />
-          <div className="emoji hidden lg:block">
-            <img src="./emoji.png" onClick={() => setOpen((prev) => !prev)} />
-            <div className="picker">
-              <EmojiPicker
-                open={!(isCurrentUserBlocked || isReceiverBlocked) && open}
-                onEmojiClick={handleEmoji}
-              />
-            </div>
-          </div>
-          <button
-            className="sendButton hidden lg:block"
-            onClick={handleSend}
-            disabled={isCurrentUserBlocked || isReceiverBlocked}
-          >
-            Send
 
-          </button>
+          <div className="emojiWrapper">
+            <img 
+              src="./emoji.png" 
+              onClick={() => {
+                if (chat !== undefined) setOpen((prev) => !prev);
+              }} 
+              alt="Emoji Picker"
+              className="emojiTrigger"
+              style={{ 
+                opacity: chat === undefined ? 0.5 : 1, 
+                cursor: chat === undefined ? "not-allowed" : "pointer" 
+              }}
+            />
+            {open && chat !== undefined && (
+              <div className="pickerContainer">
+                <EmojiPicker
+                  open={open}
+                  onEmojiClick={handleEmoji}
+                  width={280}
+                  height={350}
+                />
+              </div>
+            )}
+          </div>
+
           <button
-            className="sendButton block lg:hidden"
+            className="sendButton"
             onClick={handleSend}
-            disabled={isCurrentUserBlocked || isReceiverBlocked}
+            disabled={isCurrentUserBlocked || isReceiverBlocked || chat === undefined || (!text && !img.file)}
           >
             <IoSend />
-
-
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

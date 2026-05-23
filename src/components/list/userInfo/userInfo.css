@@ -1,34 +1,70 @@
 .userInfo {
-  padding: 20px;
+  padding: 24px 20px 15px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--primary-purple-dark);
 
   .user {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
 
     img {
-      width: 50px;
-      height: 50px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      -webkit-border-radius: 50%;
-      -moz-border-radius: 50%;
-      -ms-border-radius: 50%;
-      -o-border-radius: 50%;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    img:hover {
+      transform: scale(1.05);
+    }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-light);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
   .icons {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 15px;
+
+    svg {
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    svg:hover {
+      color: var(--accent-pink);
+      transform: scale(1.15);
+    }
 
     img {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
+      opacity: 0.8;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    img:hover {
+      opacity: 1;
+      transform: scale(1.15);
     }
   }
 }
